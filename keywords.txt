@@ -1,0 +1,13 @@
+Ticks	KEYWORD1
+PhaseSteps	KEYWORD1
+Callable	KEYWORD1
+Task	KEYWORD1
+Scheduler	KEYWORD1
+TimerInterrupt	KEYWORD1
+IsEnabled	KEYWORD1
+Enable	KEYWORD2
+Disable	KEYWORD2
+Init	KEYWORD2
+Restart	KEYWORD2
+Stop	KEYWORD2
+Attach	KEYWORD2
