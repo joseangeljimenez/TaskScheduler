@@ -30,10 +30,10 @@
     - Modified [yyyy month] by [xxx] and [yyy] to [zzz].
 */
 
+#include "TimerInterrupt.h"
 #include <util/atomic.h>
 #include <avr/interrupt.h>
 #include "TaskScheduler.h"
-#include "TimerInterrupt.h"
 
 // Private properties.
 uint8_t TimerInterrupt::prescaler_bits_;

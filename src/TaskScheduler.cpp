@@ -26,13 +26,19 @@
 
     ============================================================================
     Revision history:
-    - Original code by Jose Angel Jimenez Vadillo, 2014 Sep 08.
-    - Modified [yyyy month] by [xxx] and [yyy] to [zzz].
+    - Version 1.00, original code by Jose Angel Jimenez Vadillo, 2014 Sep 08.
+    - Version 1.01, modified 2014 Sep 09 by JAJV,
+      * Parameter "num_tasks" of Scheduler::Init() is now removed.
+      * Parameter "enabled" of Task::Task() has no default value now.
+      * Parameter "start" of Scheduler::Init() has no default value now.
+      * Minor refactoring of .h and .cpp.
 */
 
-#include <util/atomic.h>
-#include "TimerInterrupt.h"
 #include "TaskScheduler.h"
+#include "TimerInterrupt.h"
+
+// Debugging: setting this const to true makes "ticking" 256 times slower.
+static const bool DEBUG_SLOWDOWN = false;
 
 Task::Task(Callable execute, Ticks first_execution, Ticks period,
     bool enabled):
@@ -50,7 +56,7 @@ Task::Task(Callable execute, Ticks first_execution, Ticks period,
     phase_steps_per_tick_(phase_steps_per_tick), enabled_(enabled) {
 }
 
-// Called from Scheduler::Tick() and ISR(TIMER1_OVF_vect)
+// Called by Scheduler::Tick() and ISR(TIMER1_OVF_vect)
 void Task::Tick() {
     if (current_-- == 0) {
         current_ += period_;
@@ -67,22 +73,9 @@ void Task::Tick() {
     }
 }
 
-// Private properties.
+// Hidden properties, only accessed from Scheduler::Tick().
 Task* Scheduler::tasks_;
 uint8_t Scheduler::num_tasks_;
-
-// This function MUST NOT be called from the ISR (user defined task).
-void Scheduler::Init(const Task tasks[], uint8_t num_tasks,
-    uint16_t cpu_cycles_per_tick, bool start)
-{
-    // Atomic block:
-    // - Avoids inconsistent reads of tasks_ and num_tasks_ from an ISR.
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        tasks_ = (Task*) tasks;
-        num_tasks_ = num_tasks;
-        TimerInterrupt::Init(Scheduler::Tick, cpu_cycles_per_tick, start);
-    }
-}
 
 void Scheduler::Restart() {
     TimerInterrupt::Restart();
@@ -92,12 +85,15 @@ void Scheduler::Stop() {
     TimerInterrupt::Stop();
 }
 
-// Called from ISR(TIMER1_OVF_vect)
-// Defining SLOWDOWN as true makes "ticking" 256 times slower (debugging).
-#define SLOWDOWN false
+// This function is internally called by the constructor.
+void Scheduler::InitTimerInterrupt(uint16_t cpu_cycles_per_tick, bool start) {
+    TimerInterrupt::Init(Tick, cpu_cycles_per_tick, start);
+}
+
+// Called by ISR(TIMER1_OVF_vect)
 void Scheduler::Tick() {
     static uint8_t slowdown = 0;
-    if (SLOWDOWN) ++slowdown;
+    if (DEBUG_SLOWDOWN) ++slowdown;
     if (!slowdown)
     {
         for(int i = 0; i < num_tasks_; ++i) {

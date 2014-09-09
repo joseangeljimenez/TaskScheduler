@@ -84,13 +84,12 @@ void f2(){
 
 Task t1(f1, 0, TICKS_PER_SECOND, true);
 Task t2(f2, 0, 0.5 * TICKS_PER_SECOND, true);
-const int NUM_TASKS(2);
-const Task tasks[NUM_TASKS] = { t1, t2 };
+const Task tasks[] = { t1, t2 };
 
 void setup() {
   Serial.begin(9600);
   pinMode(13, OUTPUT);
-  Scheduler::Init(tasks, NUM_TASKS, CPU_CYCLES_PER_TICK, true);
+  Scheduler::Init(tasks, CPU_CYCLES_PER_TICK, true);
 }
 
 void loop() {
@@ -99,9 +98,12 @@ void loop() {
 
 Revision history
 ----------------
-- Original code by Jose Angel Jimenez Vadillo, 2014 Sep 08.
-
-- Modified [yyyy month] by [xxx] and [yyy] to [zzz].
+- Version 1.00, original code by Jose Angel Jimenez Vadillo, 2014 Sep 08.
+- Version 1.01, modified 2014 Sep 09 by JAJV,
+  * Parameter "num_tasks" of Scheduler::Init() is now removed.
+  * Parameter "enabled" of Task::Task() has no default value now.
+  * Parameter "start" of Scheduler::Init() has no default value now.
+  * Minor refactoring of .h and .cpp.
 
 License
 -------

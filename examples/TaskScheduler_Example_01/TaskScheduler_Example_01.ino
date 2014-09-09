@@ -20,13 +20,12 @@ void f2(){
 
 Task t1(f1, 0, TICKS_PER_SECOND, true);
 Task t2(f2, 0, 0.5 * TICKS_PER_SECOND, true);
-const int NUM_TASKS(2);
-const Task tasks[NUM_TASKS] = { t1, t2 };
+const Task tasks[] = { t1, t2 };
 
 void setup() {
   Serial.begin(9600);
   pinMode(13, OUTPUT);
-  Scheduler::Init(tasks, NUM_TASKS, CPU_CYCLES_PER_TICK, true);
+  Scheduler::Init(tasks, CPU_CYCLES_PER_TICK, true);
 }
 
 void loop() {
